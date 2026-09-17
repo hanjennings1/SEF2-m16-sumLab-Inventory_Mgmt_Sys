@@ -6,10 +6,11 @@ inventory = [
         "id": 1,
         "product_name": "Chocolate Milk",
         "brands": "Fairlife",
-        "ingredients_text": "Ultra-filtered milk, sugar, cocoa processed with alkali, ..."
+        "ingredients_text": "Ultra-filtered milk, sugar, cocoa processed with alkali, ...",
+        "price": 5.99,
+        "stock": 25
     }
 ]
-
 next_id = 2  # keeps track of the next available ID
 
 
