@@ -2,6 +2,7 @@
 import pytest
 import app as flask_app
 import data
+from unittest.mock import patch
 
 
 @pytest.fixture
@@ -79,4 +80,40 @@ def test_delete_item_found(client):
 
 def test_delete_item_not_found(client):
     response = client.delete("/inventory/999")
+    assert response.status_code == 404
+
+
+# === LOOKUP ROUTES TESTS ===
+@patch("app.external_api.fetch_by_barcode")
+def test_lookup_by_barcode_found(mock_fetch, client):
+    mock_fetch.return_value = {"product_name": "Mock Product", "code": "123"}
+
+    response = client.get("/lookup/123")
+
+    assert response.status_code == 200
+    assert response.get_json()["product_name"] == "Mock Product"
+
+@patch("app.external_api.fetch_by_barcode")
+def test_lookup_by_barcode_not_found(mock_fetch, client):
+    mock_fetch.return_value = None
+
+    response = client.get("/lookup/000")
+
+    assert response.status_code == 404
+
+@patch("app.external_api.fetch_by_name")
+def test_lookup_by_name_found(mock_fetch, client):
+    mock_fetch.return_value = {"product_name": "Mock Product", "brands": ["Mock Brand"]}
+
+    response = client.get("/lookup/name/mockproduct")
+
+    assert response.status_code == 200
+    assert response.get_json()["product_name"] == "Mock Product"
+
+@patch("app.external_api.fetch_by_name")
+def test_lookup_by_name_not_found(mock_fetch, client):
+    mock_fetch.return_value = None
+
+    response = client.get("/lookup/name/nonexistent")
+
     assert response.status_code == 404
