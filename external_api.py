@@ -22,11 +22,20 @@ def fetch_by_barcode(barcode):
 def fetch_by_name(name):
     """Search for products by name using Open Food Facts' full-text search engine."""
     url = "https://search.openfoodfacts.org/search"
-    params = {"q": name, "page_size": 1}
+    params = {"q": name, "page_size": 1}  # no fields filter, get the full hit
     response = requests.get(url, params=params, headers=HEADERS)
     result = response.json()
 
-    products = result.get("hits", [])  # search-a-licious returns results under "hits"
-    if products:
-        return products[0]  # return the first/best match
-    return None  # no matches found
+    hits = result.get("hits", [])
+    if not hits:
+        return None
+
+    product = hits[0]
+
+    # manually extract just the fields we care about
+    return {
+        "product_name": product.get("product_name"),
+        "brands": product.get("brands"),
+        "ingredients_text": product.get("ingredients_text"),
+        "code": product.get("code")
+    }
