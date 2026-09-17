@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, jsonify, request
 import data
+import external_api
 
 app = Flask(__name__)
 
@@ -45,6 +46,25 @@ def remove_item(item_id):
     if success:
         return jsonify({"message": "Item deleted"})
     return jsonify({"error": "Item not found"}), 404
+
+
+# GET /lookup/<barcode> -> looks up a product on OpenFoodFacts by barcode
+@app.route("/lookup/<barcode>", methods=["GET"])
+def lookup_by_barcode(barcode):
+    product = external_api.fetch_by_barcode(barcode)
+    if product:
+        return jsonify(product)
+    return jsonify({"error": "Product not found"}), 404
+
+
+# GET /lookup/name/<name> -> looks up a product on OpenFoodFacts by name
+@app.route("/lookup/name/<name>", methods=["GET"])
+def lookup_by_name(name):
+    product = external_api.fetch_by_name(name)
+    if product:
+        return jsonify(product)
+    return jsonify({"error": "Product not found"}), 404
+
 
 
 # Runs the app in debug mode when this file is executed directly
